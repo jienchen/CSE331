@@ -1,0 +1,58 @@
+Ji En Chen
+ID#: 109896249
+HW#1 OS Security
+
+1.6) 
+I used this SELinux policy to allow vulnweb.php to access my /root/access.txt
+/root/noaccess.txt files since they are of type admin_home_t.
+
+module my-httpd 1.0;
+
+require {
+	type admin_home_t;
+	type httpd_t;
+	class file { getattr open read };
+}
+
+allow httpd_t admin_home_t:file { getattr open read };
+
+1.7)
+To deny access to /root/noaccess.txt, I ran
+[jienchen@localhost root]sudo chmod 700 ./noaccess.txt
+To check the permissions, I ran 
+[jienchen@localhost root]ls -Z noaccess.txt
+-rwx------. root root unconfined_u:object_r:admin_home_t:s0 noaccess.txt
+Now only the user had full access while the user's group and other users had 
+no permissions at all.
+
+2.1) 
+I created another Linux user gn and used
+[jienchen@localhost root]semanage login -a -s guest_u gn
+to change it to a guest_u from an unconfined_u
+
+2.2) 
+I created a SELinux policy .te file that denied guest_t types access from other guest_t types.
+
+module nopass 1.0;
+
+require{
+    type guest_t;
+    class file { ioctl read write create getattr setattr lock append unlink link rename open execute};
+}
+
+neverallow guest_t guest_t:file { ioctl read write create getattr setattr lock append unlink link rename open execute};
+
+2.3) 
+I then SSH'ed into my other Linux user (gn) and ran the exploit. 
+
+[gn@localhost hw1]$ ./hw1new 
+Welcome to CSE331!
+Enter some text:
+You entered:
+Bye!
+
+It automatically exited without running the attack file and normal functionality of hw1new was perserved.
+
+
+
+

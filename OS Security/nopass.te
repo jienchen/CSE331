@@ -1,0 +1,9 @@
+
+module nopass 1.0;
+
+require{
+    type guest_t;
+    class file { ioctl read write create getattr setattr lock append unlink link rename open execute};
+}
+
+neverallow guest_t guest_t:file { ioctl read write create getattr setattr lock append unlink link rename open execute};
